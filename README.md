@@ -38,14 +38,6 @@ Resposta da IA
 Mensagem no Discord
 ```
 
-O bot responde apenas em canais que estejam dentro de uma categoria chamada:
-
-```
-GPT
-```
-
-Isso permite que qualquer servidor organize múltiplos canais de conversa com IA.
-
 ---
 
 ## 🛠️ Tecnologias Utilizadas

@@ -51,18 +51,20 @@ async function askGroq(message) {
 
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
-    if (!message.content.startsWith("!gpt")) return;
 
-    const prompt = message.content.replace("!gpt", "").trim();
+    // Só responde se estiver dentro de uma categoria chamada "GPT"
+    if (!message.channel.parent || message.channel.parent.name !== "GPT") return;
 
-    if (!prompt) {
-        return message.reply("Digite algo após !gpt");
+    if (message.content.length < 1) return;
+
+    if (message.content.length > 2000) {
+        return message.reply("Mensagem muito longa.");
     }
 
     try {
         await message.channel.sendTyping();
 
-        const reply = await askGroq(prompt);
+        const reply = await askGroq(message.content);
 
         await message.reply(reply);
     } catch (error) {

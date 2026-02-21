@@ -1,0 +1,12 @@
+*rodar com a ide aberta*
+node index.js
+
+*rodar em background*
+pm2 start index.js --name DiscordChatBot
+
+
+*Parar de rodar em background*
+pm2 stop DiscordChatBot
+
+*subir novamente*
+pm2 restart DiscordChatBot

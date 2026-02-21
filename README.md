@@ -105,7 +105,3 @@ Arthur Jircik Cronemberger
 Estudante de Engenharia de Software    
 
 ---
-
-## 📄 Licença
-
-ISC License

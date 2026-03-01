@@ -12,11 +12,10 @@ const client = new Client({
 });
 
 client.once("ready", () => {
-    console.log(`Bot online como ${client.user.tag}`);
+    console.log(`🤖 Bot online como ${client.user.tag}`);
 });
 
-// Função para chamar a Groq
-async function askGroq(message) {
+async function askGroq(messageContent) {
     try {
         const response = await axios.post(
             "https://api.groq.com/openai/v1/chat/completions",
@@ -29,7 +28,7 @@ async function askGroq(message) {
                     },
                     {
                         role: "user",
-                        content: message
+                        content: messageContent
                     }
                 ],
                 temperature: 0.7
@@ -38,24 +37,25 @@ async function askGroq(message) {
                 headers: {
                     Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
                     "Content-Type": "application/json"
-                }
+                },
+                timeout: 60000
             }
         );
 
         return response.data.choices[0].message.content;
+
     } catch (error) {
-        console.error(error.response?.data || error.message);
-        return "Erro ao comunicar com a IA.";
+        console.error("❌ GROQ ERROR:", error.response?.data || error.message);
+        throw new Error("Erro ao comunicar com a IA.");
     }
 }
 
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
 
-    // Só responde se estiver dentro de uma categoria chamada "GPT"
     if (!message.channel.parent || message.channel.parent.name !== "GPT") return;
 
-    if (message.content.length < 1) return;
+    if (!message.content || message.content.length < 1) return;
 
     if (message.content.length > 2000) {
         return message.reply("Mensagem muito longa.");
@@ -66,9 +66,19 @@ client.on("messageCreate", async (message) => {
 
         const reply = await askGroq(message.content);
 
-        await message.reply(reply);
+        const maxLength = 1900;
+
+        if (reply.length > maxLength) {
+            const chunks = reply.match(new RegExp(`.{1,${maxLength}}`, "g"));
+            for (const chunk of chunks) {
+                await message.channel.send(chunk);
+            }
+        } else {
+            await message.reply(reply);
+        }
+
     } catch (error) {
-        console.error(error);
+        console.error("❌ BOT ERROR:", error.message);
         message.reply("Erro ao processar sua solicitação.");
     }
 });
